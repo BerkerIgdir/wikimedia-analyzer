@@ -11,6 +11,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.jetbrains.annotations.NotNull;
+import repo.cache.CacheDAOImpl;
+import repo.cache.interfaces.CacheDAO;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -25,6 +27,8 @@ public class WikiMediaConsumer {
     private final KafkaConfigurer kafkaConsumerConfigurer = new KafkaConsumerConfigurerImpl();
     private final String topicName = kafkaConsumerConfigurer.getTopicName().get(0);
     private final ObjectMapper mapper = new ObjectMapper();
+    private final CacheDAO<WikiMediaRecentChangesDTO> cache = new CacheDAOImpl();
+
     private final List<WikiMediaAnalyzer> services = Arrays.stream(WikiType.values())
             .map(WikiMediaRecentChangesAnalyzerService::new)
             .collect(Collectors.toList());
@@ -66,12 +70,19 @@ public class WikiMediaConsumer {
     }
 
     private void consume(KafkaConsumer<String, String> consumer) {
-        List<WikiMediaRecentChangesDTO> dtoList = getDtoList(consumer);
+        List<WikiMediaRecentChangesDTO> dtoList = getDtoList(consumer).stream()
+                .filter(this::isProcessedBefore)
+                .collect(Collectors.toList());
 
         if (!dtoList.isEmpty()) {
             //Is this method idempotent?
-            services.parallelStream().forEach(service -> service.analyze(dtoList));
+            services.parallelStream()
+                    .forEach(service -> service.analyze(dtoList));
         }
+    }
+
+    private boolean isProcessedBefore(WikiMediaRecentChangesDTO dto) {
+        return cache.get(dto).isPresent();
     }
 
     @NotNull

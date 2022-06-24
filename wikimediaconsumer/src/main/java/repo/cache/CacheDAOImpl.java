@@ -7,10 +7,12 @@ import repo.cache.interfaces.CacheDAO;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 public class CacheDAOImpl implements CacheDAO<WikiMediaRecentChangesDTO> {
     private static final String KEY = "PROCESSED_IDS";
+    private static final String ID_KEY = "id";
     private final JedisPool pool;
 
     public CacheDAOImpl() {
@@ -32,18 +34,21 @@ public class CacheDAOImpl implements CacheDAO<WikiMediaRecentChangesDTO> {
     }
 
     @Override
-    public void put(WikiMediaRecentChangesDTO messageId) {
+    public void put(List<WikiMediaRecentChangesDTO> dtos) {
         var connection = pool.getResource();
-        connection.sadd(KEY,messageId.getUser())
+        dtos.forEach(id -> connection.sadd(KEY,id.getMeta().get(ID_KEY)));
     }
 
     @Override
-    public void put(List<WikiMediaRecentChangesDTO> messageIds) {
-
+    public void remove(WikiMediaRecentChangesDTO dto) {
+        var connection = pool.getResource();
+        connection.spop(dto.getMeta().get(ID_KEY));
     }
 
     @Override
-    public void remove(WikiMediaRecentChangesDTO messageId) {
-
+    public Optional<WikiMediaRecentChangesDTO> get(WikiMediaRecentChangesDTO dto) {
+        var connection = pool.getResource();
+        //if exists return the dto itself. Bad solution!
+        return Optional.ofNullable(connection.get(dto.getMeta().get(ID_KEY))).map(s -> dto);
     }
 }
