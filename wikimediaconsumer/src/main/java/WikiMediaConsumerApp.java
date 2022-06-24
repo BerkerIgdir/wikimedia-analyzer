@@ -1,5 +1,5 @@
 import business.ConcurrentQuerier;
-import consumer.WikiMediaConsumer;
+import consumer.WikiMediaConsumerImpl;
 
 
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class WikiMediaConsumerApp {
     private static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private static final WikiMediaConsumer consumer = new WikiMediaConsumer();
+    private static final WikiMediaConsumerImpl consumer = new WikiMediaConsumerImpl();
     public static void main(String[] args) throws IOException {
         if(args.length == 0){
             throw new RuntimeException("A UDP PORT MUST BE ENTERED");
