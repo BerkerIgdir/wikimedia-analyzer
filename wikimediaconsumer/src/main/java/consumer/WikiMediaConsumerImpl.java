@@ -78,6 +78,7 @@ public class WikiMediaConsumerImpl implements WikiMediaConsumer<WikiMediaRecentC
             //Is this method idempotent?
             services.parallelStream()
                     .forEach(service -> service.analyze(dtoList));
+            cache.put(dtoList);
         }
     }
 
