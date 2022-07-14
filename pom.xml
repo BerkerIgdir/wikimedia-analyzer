@@ -22,6 +22,7 @@
         <jackson-mapper.version>2.12.6.1</jackson-mapper.version>
         <mongodb-driver-sync.version>3.11.0</mongodb-driver-sync.version>
         <jedis-client.version>4.2.0</jedis-client.version>
+        <junit-version>5.8.2</junit-version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -75,6 +76,12 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis-client.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

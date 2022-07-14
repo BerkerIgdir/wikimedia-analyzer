@@ -12,7 +12,7 @@ import java.util.Properties;
 
 public class CacheDAOImpl implements CacheDAO<WikiMediaRecentChangesDTO> {
     private static final String KEY = "PROCESSED_IDS";
-    private static final String ID_KEY = "id";
+    private static final String ID_KEY = "request_id";
     private final JedisPool pool;
 
     public CacheDAOImpl() {

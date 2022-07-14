@@ -44,6 +44,7 @@ public class WikiMediaConsumerImpl implements WikiMediaConsumer<WikiMediaRecentC
                 consume(consumer);
             } catch (Exception e) {
                 e.printStackTrace();
+                //An unnecessary solution, it will be replaced with a dead message push
                 recover(consumer);
             }
             consumer.commitSync();
@@ -71,7 +72,7 @@ public class WikiMediaConsumerImpl implements WikiMediaConsumer<WikiMediaRecentC
 
     private void consume(KafkaConsumer<String, String> consumer) {
         List<WikiMediaRecentChangesDTO> dtoList = getDtoList(consumer).stream()
-                .filter(this::isProcessedBefore)
+                .filter(this::isNotProcessedBefore)
                 .collect(Collectors.toList());
 
         if (!dtoList.isEmpty()) {
@@ -82,8 +83,8 @@ public class WikiMediaConsumerImpl implements WikiMediaConsumer<WikiMediaRecentC
         }
     }
 
-    private boolean isProcessedBefore(WikiMediaRecentChangesDTO dto) {
-        return cache.get(dto).isPresent();
+    private boolean isNotProcessedBefore(WikiMediaRecentChangesDTO dto) {
+        return cache.get(dto).isEmpty();
     }
 
     @NotNull
@@ -91,6 +92,7 @@ public class WikiMediaConsumerImpl implements WikiMediaConsumer<WikiMediaRecentC
         var consumerRecords = consumer.poll(Duration.of(3000, ChronoUnit.MILLIS));
 
         return StreamSupport.stream(consumerRecords.records(topicName).spliterator(), false)
+                .peek(rcrd -> System.out.println(rcrd.topic() + " " + rcrd.partition() + " " + rcrd.offset()))
                 .map(ConsumerRecord::value)
                 .map(this::getKey)
                 .collect(Collectors.toList());

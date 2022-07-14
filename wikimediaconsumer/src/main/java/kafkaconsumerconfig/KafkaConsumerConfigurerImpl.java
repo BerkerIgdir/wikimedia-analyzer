@@ -3,10 +3,7 @@ package kafkaconsumerconfig;
 import org.apache.kafka.common.KafkaException;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
